@@ -21,13 +21,13 @@ It detects supported media on web pages and provides a workflow for selecting HL
 
 ## Technology stack
 
-| Component | Technology |
-| --- | --- |
-| Browser extension | JavaScript, HTML, CSS, Chrome Manifest V3 |
-| Native host | Rust |
-| Media processing | FFmpeg / FFprobe |
-| Browser-to-desktop communication | Chrome Native Messaging |
-| Supported development environment | Windows |
+| Component                         | Technology                                |
+| --------------------------------- | ----------------------------------------- |
+| Browser extension                 | JavaScript, HTML, CSS, Chrome Manifest V3 |
+| Native host                       | Rust                                      |
+| Media processing                  | FFmpeg / FFprobe                          |
+| Browser-to-desktop communication  | Chrome Native Messaging                   |
+| Supported development environment | Windows                                   |
 
 ## Repository structure
 
@@ -100,9 +100,7 @@ Example manifest (**replace both placeholders with your own values**):
   "description": "AndacCatcher native messaging host",
   "path": "C:\\ABSOLUTE\\PATH\\TO\\AndacCatcher\\desktop\\target\\release\\video_downloader.exe",
   "type": "stdio",
-  "allowed_origins": [
-    "chrome-extension://YOUR_EXTENSION_ID/"
-  ]
+  "allowed_origins": ["chrome-extension://YOUR_EXTENSION_ID/"]
 }
 ```
 
@@ -132,3 +130,13 @@ Only download content when you have the rights or permission to do so. Respect c
 ## License
 
 No license has been selected yet. Until a license is added, the repository's public visibility does **not** automatically grant others permission to redistribute or modify the code.
+
+## Screenshots
+
+### Video Quality Selection
+
+![Quality Selection](docs/screenshots/quality-selector.png)
+
+### Download Manager
+
+![Download Manager](docs/screenshots/download-manager.png)
