@@ -1,0 +1,29 @@
+*{box-sizing:border-box}body{width:390px;max-height:540px;overflow-y:auto;margin:0;background:#111827;color:#f9fafb;font:13px/1.5 system-ui,Segoe UI,sans-serif}header{padding:17px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #30394a}h1{font-size:17px;margin:0}p{margin:2px 0 0;color:#9ca3af;font-size:11px}p span{color:#60a5fa}button{cursor:pointer;border:0;border-radius:7px;padding:7px 10px;background:#374151;color:#fff}button:hover{background:#4b5563}button:disabled{opacity:.5;cursor:default}main{padding:14px 16px}#summary{font-size:12px;color:#9ca3af;margin-bottom:12px}#list{display:grid;gap:10px}.item{background:#1f2937;border:1px solid #374151;border-radius:10px;padding:12px}.top{display:flex;justify-content:space-between;gap:10px}.name{font-weight:650;overflow-wrap:anywhere;max-width:270px}.state{color:#93c5fd;font-size:11px;white-space:nowrap}.track{height:7px;border-radius:10px;background:#4b5563;margin:11px 0 7px;overflow:hidden}.fill{height:100%;width:0;background:#3b82f6;border-radius:10px}.meta{display:flex;justify-content:space-between;color:#d1d5db;font-size:11px;gap:8px}.actions{margin-top:10px;display:flex;justify-content:flex-end}.cancel{background:#b91c1c}.cancel:hover{background:#991b1b}.empty{padding:34px 10px;text-align:center;color:#9ca3af}footer{border-top:1px solid #30394a;text-align:center;padding:10px;color:#6b7280;font-size:10px}
+
+/* v1.1: Iptal/kesinti ilerlemesi tamamlanmis gibi gorunmesin. */
+.fill.stopped { background: #8893a6; }
+.actions .folder { background: #283c5d; color: #e9f1ff; border: 0; border-radius: 6px; padding: 7px 10px; cursor: pointer; }
+.actions .folder:hover { background: #35527e; }
+
+/* v1.2 */
+.actions { flex-wrap: wrap; gap: 6px; }
+.actions .folder { font-size: 11px; }
+
+/* v1.4.1 */
+.settings{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;padding:10px 12px;border:1px solid #374151;border-radius:9px;background:#1f2937;font-size:12px}
+.settings select{background:#111827;color:#f9fafb;border:1px solid #64748b;border-radius:6px;padding:5px 10px;cursor:pointer}
+.actions .move{background:#334155;font-size:12px;padding:6px 9px}
+.actions .move:hover{background:#475569}
+.actions .move:disabled{opacity:.35}
+
+/* v1.4.2 */
+.actions .pause{background:#155e75;font-size:12px}
+.actions .pause:hover{background:#0e7490}
+
+/* v1.5: arama, filtreler ve tekil gecmis temizleme */
+.filters{display:flex;gap:8px;margin-bottom:12px}
+.filters input,.filters select{min-width:0;background:#1f2937;color:#f9fafb;border:1px solid #475569;border-radius:7px;padding:8px}
+.filters input{flex:1;width:55%}
+.filters select{width:40%}
+.actions .remove{background:#4b5563;font-size:11px}
+.actions .remove:hover{background:#6b7280}

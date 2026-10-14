@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "AndacCatcher",
+  "version": "1.5.3",
+  "description": "Sayfalardaki video ve medya kaynaklarını algılar.",
+  "permissions": ["storage", "webRequest", "downloads", "nativeMessaging"],
+  "host_permissions": ["<all_urls>"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["content.js"],
+    "css": ["content.css"],
+    "run_at": "document_idle",
+    "all_frames": true,
+    "match_about_blank": true,
+    "match_origin_as_fallback": true
+  }],
+  "action": {
+    "default_title": "Video Catcher",
+    "default_popup": "popup.html"
+  }
+}

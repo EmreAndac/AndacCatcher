@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AndacCatcher</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <header>
+        <div>
+            <h1>⬇ AndacCatcher</h1>
+            <p>İndirme yöneticisi <span>v1.5</span></p>
+        </div>
+        <button id="clear" title="Tamamlanan ve duran kayıtları temizle">Temizle</button>
+    </header>
+    <main>
+        <div class="settings"><label for="concurrency">Eşzamanlı HLS indirme</label><select id="concurrency"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+        <div class="filters"><input id="search" type="search" placeholder="Video adına göre ara" aria-label="Video ara"><select id="statusFilter" aria-label="Duruma göre filtrele"><option value="all">Tüm durumlar</option><option value="active">Aktif</option><option value="queued">Sırada</option><option value="completed">Tamamlanan</option><option value="stopped">İptal / Hata</option></select></div>
+        <div id="summary">İndirmeler yükleniyor...</div>
+        <div id="list" aria-live="polite"></div>
+    </main>
+    <footer>DRM korumalı içerikler desteklenmez.</footer>
+    <script src="popup.js"></script>
+</body>
+</html>

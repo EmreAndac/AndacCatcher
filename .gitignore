@@ -1,0 +1,24 @@
+# Rust build files
+/desktop/target/
+
+# Local configuration
+.env
+.env.*
+!.env.example
+
+# Editor files
+.vs/
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Logs and temporary files
+*.log
+*.tmp
+*.part
+
+# Local native messaging configuration
+**/native-host-manifest.json
