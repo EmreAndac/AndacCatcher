@@ -1,5 +1,7 @@
 # Rust build files
 /desktop/target/
+installer/output/
+vendor/
 
 # Local configuration
 .env
@@ -22,3 +24,7 @@ Thumbs.db
 
 # Local native messaging configuration
 **/native-host-manifest.json
+
+*.pem
+*.crx
+*.der

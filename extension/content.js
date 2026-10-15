@@ -349,24 +349,29 @@ function registerVideo(video) {
                     ownHls.push(source.src);
                 }
             }
-            if (ownHls.length === 0) {
-                const direct = ownUrls.find(url => /\.(mp4|webm)(?:[?#]|$)/i.test(url));
-                if (!direct) {
-                    throw new Error("Bu videonun HLS adresi belirlenemedi. Başka videonun kaynağı kullanılmayacak.");
-                }
-                qualityPanel.style.display = "none";
-                const response = await chrome.runtime.sendMessage({ type: "DOWNLOAD_DIRECT", url: direct });
-                if (!response?.ok) throw new Error(response?.error || "Doğrudan indirme başarısız.");
-                return;
-            }
-            const hlsSources = await chrome.runtime.sendMessage({ type: "GET_HLS", urls: ownHls });
+            // blob: kaynaklari HLS.js tarafindan kullanilabilir; bu durumda
+            // agda yakalanmis manifestleri yalnizca tek video varsa dene.
+            const singleVideo = document.querySelectorAll("video").length === 1;
+            const hlsSources = await chrome.runtime.sendMessage({
+                type: "GET_HLS", urls: ownHls, singleVideo
+            });
             const candidates = ownHls.map(url => ({ url }));
-            // GET_HLS kaydi, bu video icin bildirilen URL'nin dogrulanmasina yarar;
-            // kayit olmasa bile DOM'daki acik HLS adresi kullanilabilir.
             if (Array.isArray(hlsSources)) {
                 for (const item of hlsSources) {
-                    if (ownHls.includes(item.url) && !candidates.some(x => x.url === item.url)) candidates.push(item);
+                    if (!candidates.some(x => x.url === item.url)) candidates.push(item);
                 }
+            }
+            if (candidates.length === 0) {
+                const direct = ownUrls.find(url => /\.(mp4|webm)(?:[?#]|$)/i.test(url));
+                if (direct) {
+                    qualityPanel.style.display = "none";
+                    const response = await chrome.runtime.sendMessage({ type: "DOWNLOAD_DIRECT", url: direct });
+                    if (!response?.ok) throw new Error(response?.error || "Doğrudan indirme başarısız.");
+                    return;
+                }
+                throw new Error(singleVideo
+                    ? "HLS bağlantısı ağ isteklerinde bulunamadı. Sayfayı yenileyip tekrar deneyin."
+                    : "Birden fazla video var ve bu videonun HLS adresi eşleştirilemedi. Yanlış video indirilmeyecek.");
             }
             let qualities = [];
             let fallbackUrl = candidates[0].url;

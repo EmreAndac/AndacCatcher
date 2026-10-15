@@ -86,8 +86,19 @@ fn send_message(writer: &SharedWriter, message: &NativeResponse) -> io::Result<(
     stdout.flush()
 }
 
+// Use bundled FFmpeg binaries when available; otherwise fall back to PATH.
+fn ffmpeg_tool(name: &str) -> std::path::PathBuf {
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            let candidate = dir.join(format!("{name}.exe"));
+            if candidate.is_file() { return candidate; }
+        }
+    }
+    std::path::PathBuf::from(name)
+}
+
 fn probe_duration(url: &str) -> Option<f64> {
-    let output = Command::new("ffprobe")
+    let output = Command::new(ffmpeg_tool("ffprobe"))
         .args([
             "-v",
             "error",
@@ -217,7 +228,7 @@ fn download_video(
     )
     .map_err(|e| e.to_string())?;
 
-    let mut child = Command::new("ffmpeg")
+    let mut child = Command::new(ffmpeg_tool("ffmpeg"))
         .args([
             "-y",
             "-nostdin",

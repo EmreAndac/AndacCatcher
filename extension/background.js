@@ -375,14 +375,18 @@ chrome.runtime.onMessage.addListener(
 
             }
 
-            // v1.5.3: Yalnizca tiklanan videodan bildirilen tam URL'leri don.
-            // Sekmedeki diger videolarin manifestlerini ASLA fallback yapma.
+            // v1.5.4: Yalnizca tek-video sayfalarinda agdan yakalanan
+            // HLS manifestlerini fallback olarak sun. Coklu videoda
+            // baska videonun kaynagini sessizce kullanma.
             const requestedUrls = Array.isArray(message.urls)
                 ? message.urls.filter(url => typeof url === "string" && /^https?:\/\//i.test(url))
                 : [];
             const allowed = new Set(requestedUrls);
+            const allowNetworkFallback = message.singleVideo === true;
             const hlsSources = Array.from(getTabMedia(tabId).values())
-                .filter(item => item.type === "HLS" && allowed.has(item.url));
+                .filter(item => item.type === "HLS" &&
+                    (allowed.has(item.url) || allowNetworkFallback))
+                .sort((a, b) => a.detectedAt - b.detectedAt);
 
             console.log(
 

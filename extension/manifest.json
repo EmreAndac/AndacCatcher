@@ -1,22 +1,40 @@
 {
-  "manifest_version": 3,
-  "name": "AndacCatcher",
-  "version": "1.5.3",
-  "description": "Sayfalardaki video ve medya kaynaklarını algılar.",
-  "permissions": ["storage", "webRequest", "downloads", "nativeMessaging"],
-  "host_permissions": ["<all_urls>"],
-  "background": { "service_worker": "background.js" },
-  "content_scripts": [{
-    "matches": ["<all_urls>"],
-    "js": ["content.js"],
-    "css": ["content.css"],
-    "run_at": "document_idle",
-    "all_frames": true,
-    "match_about_blank": true,
-    "match_origin_as_fallback": true
-  }],
-  "action": {
-    "default_title": "Video Catcher",
-    "default_popup": "popup.html"
-  }
+    "manifest_version":  3,
+    "name":  "AndacCatcher",
+    "version":  "1.5.4",
+    "description":  "Sayfalardaki video ve medya kaynaklarını algılar.",
+    "permissions":  [
+                        "storage",
+                        "webRequest",
+                        "downloads",
+                        "nativeMessaging"
+                    ],
+    "host_permissions":  [
+                             "\u003call_urls\u003e"
+                         ],
+    "background":  {
+                       "service_worker":  "background.js"
+                   },
+    "content_scripts":  [
+                            {
+                                "matches":  [
+                                                "\u003call_urls\u003e"
+                                            ],
+                                "js":  [
+                                           "content.js"
+                                       ],
+                                "css":  [
+                                            "content.css"
+                                        ],
+                                "run_at":  "document_idle",
+                                "all_frames":  true,
+                                "match_about_blank":  true,
+                                "match_origin_as_fallback":  true
+                            }
+                        ],
+    "action":  {
+                   "default_title":  "Video Catcher",
+                   "default_popup":  "popup.html"
+               },
+    "key":  "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu9xesN46bOUYuqH+Tdj4b8nzgl2ruVr+qGdKp6lyJVHeVkFl0P+hxGJD3QK0Vix1tRd4wrV8RoLFox0RG2eaCnEQa1nIoEilKMspwu0PTaw+r/Us3V5QNAgycxaA9AH2trBSjH5aFzZpWYS2B6wReOzv2HbqGUfel7WwwLIxYGNneUN4Vb4iORjLHP7Py9p8DiK+8grvdwFpdsrJrbg8QVvXR2fGqe5A7eaReaIQ4UonMvRzr+GeFDbnNPaIHC/d+TUIkCfLlxkwE3lRFSddkAibYKL0amfkIa7XurFNa+2BO8qa0sg+PZBnxP2YkCb1mkogim8osQg53ZVZM5lumQIDAQAB"
 }
