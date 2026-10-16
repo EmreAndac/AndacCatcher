@@ -1,9 +1,9 @@
 {
   "name": "com.videocatcher.downloader",
-  "description": "Video Catcher Rust Native Host",
-  "path": "C:\\Users\\emre.andac\\Desktop\\VideoDownloader\\desktop\\target\\release\\video_downloader.exe",
+  "description": "AndacCatcher Rust Native Host",
+  "path": "C:\\ABSOLUTE\\PATH\\TO\\video_downloader.exe",
   "type": "stdio",
   "allowed_origins": [
-    "chrome-extension://falodbhmkpjcbpmekmkpochinicfcjac/"
+    "chrome-extension://fooiadlcldihlgemodgcbkbajblnompo/"
   ]
 }

@@ -22,7 +22,10 @@ UninstallDisplayIcon={app}\{#AppExe}
 Source: "..\desktop\target\release\video_downloader.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\vendor\ffmpeg.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\vendor\ffprobe.exe"; DestDir: "{app}"; Flags: ignoreversion
+; FFmpeg license and source-compliance materials
+Source: "..\licenses\ffmpeg\*"; DestDir: "{app}\licenses\ffmpeg"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\extension\*"; DestDir: "{app}\extension"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.crx,*.pem,*.key"
+Source: "OpenChromeExtensions.cmd"; DestDir: "{app}"; Flags: ignoreversion
 
 [Registry]
 Root: HKCU; Subkey: "Software\Google\Chrome\NativeMessagingHosts\com.videocatcher.downloader"; ValueType: string; ValueName: ""; ValueData: "{app}\native-host.json"; Flags: uninsdeletekey
@@ -65,3 +68,8 @@ begin
     end;
   end;
 end;
+
+[Run]
+Filename: "{sys}\explorer.exe"; Parameters: """{app}\extension"""; Description: "AndacCatcher eklenti klasörünü aç"; Flags: postinstall skipifsilent nowait
+
+Filename: "{app}\OpenChromeExtensions.cmd"; Description: "Chrome eklenti yönetimini aç"; Flags: postinstall skipifsilent nowait
