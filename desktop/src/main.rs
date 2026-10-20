@@ -1,4 +1,6 @@
 mod hls;
+mod video_info;
+mod yt_download;
 
 use serde::{Deserialize, Serialize};
 use std::io::{self, BufRead, BufReader, Read, Write};
@@ -34,6 +36,7 @@ struct NativeResponse {
     speed: Option<String>,
     size_bytes: Option<u64>,
     qualities: Option<Vec<hls::HlsQuality>>,
+    video_info: Option<video_info::VideoInfo>,
 }
 
 type SharedWriter = Arc<Mutex<io::Stdout>>;
@@ -49,6 +52,7 @@ fn response(event: &str, ok: bool, message: String) -> NativeResponse {
         speed: None,
         size_bytes: None,
         qualities: None,
+        video_info: None,
     }
 }
 
@@ -515,6 +519,11 @@ fn main() {
             }
         };
 
+        // Finished workers must be reaped before accepting a new download.
+        if download_thread.as_ref().is_some_and(|handle| handle.is_finished()) {
+            if let Some(handle) = download_thread.take() { let _ = handle.join(); }
+        }
+
         match request.action.as_str() {
             "DOWNLOAD_HLS" => {
                 if download_thread.is_some() {
@@ -574,6 +583,41 @@ fn main() {
                         &writer,
                         &response("error", false, "Aktif indirme bulunamadi".into()),
                     );
+                }
+            }
+
+            "DOWNLOAD_VIDEO" => {
+                if download_thread.is_some() {
+                    let _ = send_message(&writer, &response("error", false, "Bu baglantida zaten indirme var".into()));
+                    continue;
+                }
+                cancel.store(false, Ordering::SeqCst);
+                pause_requested.store(false, Ordering::SeqCst);
+                let url = request.url;
+                let quality = request.quality;
+                let worker_cancel = Arc::clone(&cancel);
+                let worker_pause = Arc::clone(&pause_requested);
+                let worker_writer = Arc::clone(&writer);
+                download_thread = Some(thread::spawn(move || {
+                    if let Err(error) = yt_download::download_video(
+                        &url, quality.as_deref(), worker_cancel, worker_pause,
+                        Arc::clone(&worker_writer),
+                    ) {
+                        let _ = send_message(&worker_writer, &response("error", false, error));
+                    }
+                }));
+            }
+
+            "GET_VIDEO_INFO" => {
+                match video_info::get_video_info(&request.url) {
+                    Ok(info) => {
+                        let mut result = response("video_info", true, "Video bilgileri alindi".into());
+                        result.video_info = Some(info);
+                        let _ = send_message(&writer, &result);
+                    }
+                    Err(error) => {
+                        let _ = send_message(&writer, &response("error", false, error));
+                    }
                 }
             }
 

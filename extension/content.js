@@ -187,6 +187,8 @@ function registerVideo(video) {
     let currentDownloadId = null;
     let availableQualities = [];
     let selectedQualityIndex = 0;
+    let downloadMode = "hls";
+    let videoPageUrl = "";
     let loading = false;
     const earlyEvents = [];
     let startingDownload = false;
@@ -274,7 +276,7 @@ function registerVideo(video) {
                 quality.bandwidth
                     ? ` • ${(quality.bandwidth / 1000000).toFixed(2)} Mbps`
                     : "";
-            detail.textContent = resolution + bitrate;
+            detail.textContent = quality.detail || (resolution + bitrate);
             description.append(title, detail);
             label.append(radio, description);
             qualityOptions.appendChild(label);
@@ -291,10 +293,10 @@ function registerVideo(video) {
         try {
             const selectedQuality = availableQualities[selectedQualityIndex];
             const response = await chrome.runtime.sendMessage({
-                type: "START_HLS_DOWNLOAD",
+                type: downloadMode === "video" ? "START_VIDEO_DOWNLOAD" : "START_HLS_DOWNLOAD",
                 url,
-                title: getVideoTitle(video),
-                quality: selectedQuality?.label || "Auto"
+                title: downloadMode === "video" ? (document.title || "YouTube video") : getVideoTitle(video),
+                quality: downloadMode === "video" ? selectedQuality?.quality : (selectedQuality?.label || "Auto")
             });
             if (!response?.ok || !response.downloadId) {
                 throw new Error(
@@ -322,6 +324,33 @@ function registerVideo(video) {
             qualityDownloadButton.disabled = false;
         }
     }
+    function isYouTubeWatchPage() {
+        return window.top === window && ["www.youtube.com", "youtube.com", "m.youtube.com"].includes(location.hostname)
+            && location.pathname === "/watch" && Boolean(new URLSearchParams(location.search).get("v"));
+    }
+
+    async function loadYouTubeQualities() {
+        // Her sorguda mevcut sayfanin URL'sini kullan; YouTube SPA gezinmelerini destekle.
+        const url = location.href;
+        const result = await chrome.runtime.sendMessage({ type: "GET_VIDEO_INFO", url });
+        if (!result?.ok || !result.video_info) throw new Error(result?.message || "Video bilgileri alinamadi.");
+        if (location.href !== url) throw new Error("Video degisti. Tekrar deneyin.");
+        const formats = result.video_info.formats || [];
+        const heights = [...new Set(formats.filter(f => f.vcodec && f.vcodec !== "none" && Number.isInteger(f.height) && f.height > 0)
+            .map(f => f.height))].sort((a, b) => b - a);
+        downloadMode = "video";
+        videoPageUrl = url;
+        availableQualities = [
+            { label: "En iyi kalite", quality: "best", url, detail: "Uygun goruntu ve ses birlestirilir" },
+            ...heights.map(height => ({ label: `${height}p`, quality: `${height}p`, url, detail: `En fazla ${height}p, ses dahil` }))
+        ];
+        selectedQualityIndex = 0;
+        renderQualities();
+        qualityDownloadButton.disabled = false;
+        qualityPanel.style.display = "flex";
+        updatePosition();
+    }
+
     async function openQualityPanel() {
         if (loading || currentDownloadId) return;
         reportVideoSources(video);
@@ -333,6 +362,11 @@ function registerVideo(video) {
         button.disabled = true;
         button.textContent = "⏳ Kaliteler aranıyor...";
         try {
+            if (isYouTubeWatchPage()) {
+                await loadYouTubeQualities();
+                return;
+            }
+            downloadMode = "hls";
             // Yalnizca BU video elementinin dogrudan bildirdigi adresler.
             // Baska videolarin ag isteklerini eslestirmeye calismiyoruz.
             const ownUrls = [...new Set([
@@ -434,6 +468,10 @@ function registerVideo(video) {
             showError("Geçerli bir kalite seçilemedi.");
             return;
         }
+        if (downloadMode === "video" && location.href !== videoPageUrl) {
+            showError("Video sayfasi degisti. Kaliteleri yeniden acin.");
+            return;
+        }
         startHlsDownload(selected.url);
     });
     function handleDownloadMessage(message) {
@@ -463,7 +501,7 @@ function registerVideo(video) {
         }
         if (message.event === "cancelling") {
             progressTitle.textContent = "İndirme durduruluyor";
-            progressSpeed.textContent = "FFmpeg kapatılıyor...";
+            progressSpeed.textContent = "İndirme işlemi kapatılıyor...";
             cancelPending = true;
             cancelButton.disabled = true;
             cancelButton.textContent = "İptal ediliyor...";

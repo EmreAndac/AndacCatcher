@@ -22,6 +22,7 @@ UninstallDisplayIcon={app}\{#AppExe}
 Source: "..\desktop\target\release\video_downloader.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\vendor\ffmpeg.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\vendor\ffprobe.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\vendor\yt-dlp.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; FFmpeg license and source-compliance materials
 Source: "..\licenses\ffmpeg\*"; DestDir: "{app}\licenses\ffmpeg"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\extension\*"; DestDir: "{app}\extension"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.crx,*.pem,*.key"

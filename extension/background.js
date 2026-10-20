@@ -625,7 +625,7 @@ function launchHlsJob(job) {
     });
     try {
         port.postMessage({
-            action: "DOWNLOAD_HLS", url: job.url,
+            action: job.kind === "video" ? "DOWNLOAD_VIDEO" : "DOWNLOAD_HLS", url: job.url,
             title: job.title.slice(0, 150), quality: job.quality.slice(0, 30)
         });
     } catch (error) {
@@ -654,7 +654,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             url: message.url,
             title: typeof message.title === "string" && message.title.trim() ? message.title.trim() : "Video",
             quality: typeof message.quality === "string" && message.quality.trim() ? message.quality.trim() : "Auto",
-            port: null
+            port: null, kind: "hls"
         };
         jobs.set(id, job);
         const queued = runningIds.size >= maxConcurrentHls || waitingDownloads.length > 0;
@@ -953,6 +953,76 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         downloadStates.delete(message.downloadId);
         await persistNow();
         sendResponse({ ok: true });
+    }).catch(error => sendResponse({ ok: false, message: error.message }));
+    return true;
+});
+
+// yt-dlp metadata lookup. This does not start a download.
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type !== "GET_VIDEO_INFO") return false;
+    if (typeof sender.tab?.id !== "number") {
+        sendResponse({ ok: false, message: "Sekme bulunamadi." });
+        return false;
+    }
+    let url;
+    try {
+        url = new URL(message.url);
+        if (!["http:", "https:"].includes(url.protocol)) throw new Error("Unsupported scheme");
+    } catch (_) {
+        sendResponse({ ok: false, message: "Gecersiz video sayfasi adresi." });
+        return false;
+    }
+    chrome.runtime.sendNativeMessage("com.videocatcher.downloader", {
+        action: "GET_VIDEO_INFO", url: url.href
+    }).then(sendResponse).catch(error => sendResponse({ ok: false, message: error.message }));
+    return true;
+});
+
+// yt-dlp indirmelerini mevcut kuyruk, popup ve iptal altyapisi uzerinden calistir.
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type !== "START_VIDEO_DOWNLOAD") return false;
+    const tabId = sender.tab?.id;
+    if (typeof tabId !== "number" || !sender.url) {
+        sendResponse({ ok: false, message: "Video sekmesi bulunamadi." });
+        return false;
+    }
+    let url;
+    try {
+        url = new URL(message.url);
+        const page = new URL(sender.url);
+        if (url.protocol !== "https:" || !["youtube.com", "www.youtube.com", "m.youtube.com"].includes(url.hostname)
+            || !["youtube.com", "www.youtube.com", "m.youtube.com"].includes(page.hostname)
+            || url.pathname !== "/watch" || page.pathname !== "/watch"
+            || !url.searchParams.get("v") || url.searchParams.get("v") !== page.searchParams.get("v")) {
+            throw new Error("Video adresi sekmeyle eslesmiyor.");
+        }
+    } catch (error) {
+        sendResponse({ ok: false, message: error.message || "Gecersiz video adresi." });
+        return false;
+    }
+    const quality = message.quality;
+    if (typeof quality !== "string" || !(quality === "best" || /^(144|240|360|480|720|1080|1440|2160|4320)p$/.test(quality))) {
+        sendResponse({ ok: false, message: "Gecersiz kalite." });
+        return false;
+    }
+    Promise.all([storageReady, settingsReady]).then(() => {
+        const id = crypto.randomUUID();
+        const job = {
+            id, tabId, frameId: sender.frameId ?? 0, kind: "video",
+            url: url.href,
+            title: typeof message.title === "string" && message.title.trim() ? message.title.trim() : "YouTube video",
+            quality, port: null
+        };
+        jobs.set(id, job);
+        const queued = runningIds.size >= maxConcurrentHls || waitingDownloads.length > 0;
+        updateDownloadState(id, {
+            title: job.title, quality, tabId,
+            status: queued ? "queued" : "starting", percent: 0,
+            size_bytes: 0, speed: "", createdAt: Date.now(), queuePosition: 0
+        });
+        waitingDownloads.push(id);
+        drainQueue();
+        sendResponse({ ok: true, downloadId: id, queued });
     }).catch(error => sendResponse({ ok: false, message: error.message }));
     return true;
 });
