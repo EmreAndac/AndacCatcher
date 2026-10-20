@@ -1,6 +1,6 @@
 
 #define AppName "AndacCatcher"
-#define AppVersion "1.6.0-preview"
+#define AppVersion "1.7.0-preview"
 #define AppExe "video_downloader.exe"
 
 [Setup]
@@ -23,6 +23,7 @@ Source: "..\desktop\target\release\video_downloader.exe"; DestDir: "{app}"; Flag
 Source: "..\vendor\ffmpeg.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\vendor\ffprobe.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\vendor\yt-dlp.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\vendor\deno.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; FFmpeg license and source-compliance materials
 Source: "..\licenses\ffmpeg\*"; DestDir: "{app}\licenses\ffmpeg"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\extension\*"; DestDir: "{app}\extension"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "*.crx,*.pem,*.key"
